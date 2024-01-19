@@ -246,7 +246,16 @@ class GeoJsonParser {
           {
             final List<LatLng> lineString = [];
             for (final coords in f['geometry']['coordinates'] as List) {
-              lineString.add(LatLng(coords[1] as double, coords[0] as double));
+              // Ensure coordinates are doubles
+              dynamic lat = coords[1];
+              dynamic lng = coords[0];
+              if (lat is int) {
+                lat = lat.toDouble();
+              }
+              if (lng is int) {
+                lng = lng.toDouble();
+              }
+              lineString.add(LatLng(lat as double, lng as double));
             }
             polylines.add(polyLineCreationCallback!(
                 lineString, f['properties'] as Map<String, dynamic>));
@@ -257,8 +266,17 @@ class GeoJsonParser {
             for (final line in f['geometry']['coordinates'] as List) {
               final List<LatLng> lineString = [];
               for (final coords in line as List) {
+                // Ensure coordinates are doubles
+                dynamic lat = coords[1];
+                dynamic lng = coords[0];
+                if (lat is int) {
+                  lat = lat.toDouble();
+                }
+                if (lng is int) {
+                  lng = lng.toDouble();
+                }
                 lineString
-                    .add(LatLng(coords[1] as double, coords[0] as double));
+                    .add(LatLng(lat as double, lng as double));
               }
               polylines.add(polyLineCreationCallback!(
                   lineString, f['properties'] as Map<String, dynamic>));
@@ -273,13 +291,23 @@ class GeoJsonParser {
             for (final path in f['geometry']['coordinates'] as List) {
               final List<LatLng> hole = [];
               for (final coords in path as List<dynamic>) {
+                // Ensure coordinates are doubles
+                dynamic lat = coords[1];
+                dynamic lng = coords[0];
+                if (lat is int) {
+                  lat = lat.toDouble();
+                }
+                if (lng is int) {
+                  lng = lng.toDouble();
+                }
+
                 if (pathIndex == 0) {
                   // add to polygon's outer ring
                   outerRing
-                      .add(LatLng(coords[1] as double, coords[0] as double));
+                      .add(LatLng(lat as double, lng as double));
                 } else {
                   // add it to current hole
-                  hole.add(LatLng(coords[1] as double, coords[0] as double));
+                  hole.add(LatLng(lat as double, lng as double));
                 }
               }
               if (pathIndex > 0) {
@@ -301,13 +329,23 @@ class GeoJsonParser {
               for (final path in polygon as List) {
                 List<LatLng> hole = [];
                 for (final coords in path as List<dynamic>) {
+                  // Ensure coordinates are doubles
+                  dynamic lat = coords[1];
+                  dynamic lng = coords[0];
+                  if (lat is int) {
+                    lat = lat.toDouble();
+                  }
+                  if (lng is int) {
+                    lng = lng.toDouble();
+                  }
+
                   if (pathIndex == 0) {
                     // add to polygon's outer ring
                     outerRing
-                        .add(LatLng(coords[1] as double, coords[0] as double));
+                        .add(LatLng(lat as double, lng as double));
                   } else {
                     // add it to a hole
-                    hole.add(LatLng(coords[1] as double, coords[0] as double));
+                    hole.add(LatLng(lat as double, lng as double));
                   }
                 }
                 if (pathIndex > 0) {
