@@ -126,6 +126,27 @@ class GeoJsonParser {
     return parseGeoJson(jsonDecode(g) as Map<String, dynamic>);
   }
 
+  LatLng _getLatLngFromCoords(List coords) {
+    // Ensure coordinates are doubles
+    dynamic latitude = coords[1];
+    dynamic longitude = coords[0];
+    if (latitude is int) {
+      latitude = latitude.toDouble();
+    }
+    if (longitude is int) {
+      longitude = longitude.toDouble();
+    }
+
+    // fix values bigger than 180 or smaller than -180 degrees
+    if (longitude > 180.0) {
+      longitude = 180.0;
+    } else if (longitude < -180.0) {
+      longitude = -180.0;
+    }
+
+    return LatLng(latitude as double, longitude as double);
+  }
+
   /// set default [Marker] color
   set setDefaultMarkerColor(Color color) {
     defaultMarkerColor = color;
@@ -246,16 +267,7 @@ class GeoJsonParser {
           {
             final List<LatLng> lineString = [];
             for (final coords in f['geometry']['coordinates'] as List) {
-              // Ensure coordinates are doubles
-              dynamic lat = coords[1];
-              dynamic lng = coords[0];
-              if (lat is int) {
-                lat = lat.toDouble();
-              }
-              if (lng is int) {
-                lng = lng.toDouble();
-              }
-              lineString.add(LatLng(lat as double, lng as double));
+              lineString.add(_getLatLngFromCoords(coords));
             }
             polylines.add(polyLineCreationCallback!(
                 lineString, f['properties'] as Map<String, dynamic>));
@@ -266,17 +278,8 @@ class GeoJsonParser {
             for (final line in f['geometry']['coordinates'] as List) {
               final List<LatLng> lineString = [];
               for (final coords in line as List) {
-                // Ensure coordinates are doubles
-                dynamic lat = coords[1];
-                dynamic lng = coords[0];
-                if (lat is int) {
-                  lat = lat.toDouble();
-                }
-                if (lng is int) {
-                  lng = lng.toDouble();
-                }
                 lineString
-                    .add(LatLng(lat as double, lng as double));
+                    .add(_getLatLngFromCoords(coords));
               }
               polylines.add(polyLineCreationCallback!(
                   lineString, f['properties'] as Map<String, dynamic>));
@@ -291,23 +294,13 @@ class GeoJsonParser {
             for (final path in f['geometry']['coordinates'] as List) {
               final List<LatLng> hole = [];
               for (final coords in path as List<dynamic>) {
-                // Ensure coordinates are doubles
-                dynamic lat = coords[1];
-                dynamic lng = coords[0];
-                if (lat is int) {
-                  lat = lat.toDouble();
-                }
-                if (lng is int) {
-                  lng = lng.toDouble();
-                }
-
                 if (pathIndex == 0) {
                   // add to polygon's outer ring
                   outerRing
-                      .add(LatLng(lat as double, lng as double));
+                      .add(_getLatLngFromCoords(coords));
                 } else {
                   // add it to current hole
-                  hole.add(LatLng(lat as double, lng as double));
+                  hole.add(_getLatLngFromCoords(coords));
                 }
               }
               if (pathIndex > 0) {
@@ -329,23 +322,13 @@ class GeoJsonParser {
               for (final path in polygon as List) {
                 List<LatLng> hole = [];
                 for (final coords in path as List<dynamic>) {
-                  // Ensure coordinates are doubles
-                  dynamic lat = coords[1];
-                  dynamic lng = coords[0];
-                  if (lat is int) {
-                    lat = lat.toDouble();
-                  }
-                  if (lng is int) {
-                    lng = lng.toDouble();
-                  }
-
                   if (pathIndex == 0) {
                     // add to polygon's outer ring
                     outerRing
-                        .add(LatLng(lat as double, lng as double));
+                        .add(_getLatLngFromCoords(coords));
                   } else {
                     // add it to a hole
-                    hole.add(LatLng(lat as double, lng as double));
+                    hole.add(_getLatLngFromCoords(coords));
                   }
                 }
                 if (pathIndex > 0) {
